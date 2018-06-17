@@ -1,0 +1,15 @@
+{
+    "name": "The-Librarian",
+    "version": "1.0.0",
+    "description": "A Web App to Keep Track of the Books You Read",
+    "main": "app.js",
+    "author": "Flawid D'Souza",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "express": "^4.16.3",
+        "knex": "^0.14.6",
+        "sqlite3": "^4.0.0"
+    }
+}
