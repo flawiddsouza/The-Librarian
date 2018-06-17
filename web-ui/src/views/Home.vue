@@ -55,14 +55,14 @@ export default {
     methods: {
         fetchNotes() {
             (async () => {
-                const rawResponse = await fetch(`/notes/all?count=20`)
+                const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.notes = response
             })()
         },
         fetchBooks() {
             (async () => {
-                const rawResponse = await fetch(`/books/all?status=Currently Reading`)
+                const rawResponse = await fetch(`/books/all?status=Currently Reading`, { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.books = response
                 if(this.books.length > 0) {
@@ -73,6 +73,7 @@ export default {
         addNote() {
             (async () => {
                 const rawResponse = await fetch('/notes/add', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

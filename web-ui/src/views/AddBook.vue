@@ -134,7 +134,7 @@ export default {
     methods: {
         fetchSeries() {
             (async () => {
-                const rawResponse = await fetch('/series/all')
+                const rawResponse = await fetch('/series/all', { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.series = response
             })()
@@ -142,6 +142,7 @@ export default {
         addBook() {
             (async () => {
                 const rawResponse = await fetch('/books/add', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

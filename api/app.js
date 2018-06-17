@@ -10,6 +10,29 @@ const path = require('path')
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
+require('dotenv').config()
+if(process.env.BASIC_AUTH_USERNAME && process.env.BASIC_AUTH_PASSWORD) {
+    app.use((req, res, next) => {
+        const auth = { login: process.env.BASIC_AUTH_USERNAME, password: process.env.BASIC_AUTH_PASSWORD }
+
+        // parse login and password from headers
+        const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+        const [login, password] = new Buffer(b64auth, 'base64').toString().split(':')
+
+        // Verify login and password are set and correct
+        if (!login || !password || login !== auth.login || password !== auth.password) {
+            res.set('WWW-Authenticate', 'Basic realm="401"') // change this
+            res.status(401).send('Authentication required.') // custom message
+            return
+        }
+
+        // -----------------------------------------------------------------------
+        // Access granted...
+        next()
+
+    })
+}
+
 app.use(express.static(path.join(__dirname, '../web-ui-dist')))
 
 const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', 'is_series', 'series_id', 'series_index', 'status', 'started_reading', 'completed_reading', 'rating', 'extra_metadata']

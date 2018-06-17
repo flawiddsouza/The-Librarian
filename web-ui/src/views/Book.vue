@@ -77,14 +77,14 @@ export default {
     methods: {
         fetchBook() {
             (async () => {
-                const rawResponse = await fetch(`/books/${this.$route.params.id}`)
+                const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.book = response
             })()
         },
         fetchNotes() {
             (async () => {
-                const rawResponse = await fetch(`/notes/${this.$route.params.id}`)
+                const rawResponse = await fetch(`/notes/${this.$route.params.id}`, { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.notes = response.reverse()
             })()
@@ -96,6 +96,7 @@ export default {
             if(confirm('Are you sure?')) {
                 (async () => {
                     const rawResponse = await fetch(`/books/${id}`, {
+                        credentials: 'include',
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()
@@ -116,6 +117,7 @@ export default {
             if(confirm('Are you sure?')) {
                 (async () => {
                     const rawResponse = await fetch(`/notes/${id}`, {
+                        credentials: 'include',
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()

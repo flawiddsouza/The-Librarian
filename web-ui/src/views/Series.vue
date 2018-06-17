@@ -63,7 +63,7 @@ export default {
     methods: {
         fetchSeries() {
             (async () => {
-                const rawResponse = await fetch('/series/all')
+                const rawResponse = await fetch('/series/all', { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.series = response
             })()
@@ -71,6 +71,7 @@ export default {
         addSeries() {
             (async () => {
                 const rawResponse = await fetch('/series/add', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -93,6 +94,7 @@ export default {
                     .prompt("Rename", newName => {
                         (async () => {
                             const rawResponse = await fetch(`/series/${id}`, {
+                                credentials: 'include',
                                 method: 'PATCH',
                                 headers: {
                                     'Accept': 'application/json',
@@ -119,6 +121,7 @@ export default {
             if(confirm('Are you sure?')) {
                 (async () => {
                     const rawResponse = await fetch(`/series/${id}`, {
+                        credentials: 'include',
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()

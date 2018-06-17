@@ -94,7 +94,7 @@ export default {
     methods: {
         fetchBooks() {
             (async () => {
-                const rawResponse = await fetch(`${this.fetchURL}?type=${this.type}&status=${this.status}`)
+                const rawResponse = await fetch(`${this.fetchURL}?type=${this.type}&status=${this.status}`, { credentials: 'include' })
                 const response = await rawResponse.json()
                 this.books = response
             })()
@@ -106,6 +106,7 @@ export default {
             if(confirm('Are you sure?')) {
                 (async () => {
                     const rawResponse = await fetch(`/books/${id}`, {
+                        credentials: 'include',
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()
