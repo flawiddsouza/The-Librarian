@@ -39,19 +39,19 @@ const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', '
 const notesTableColumns = ['book_id', 'marker', 'note']
 
 app.get('/books/all', (req, res) => {
-    if((req.query.type !== 'All' && req.query.status === 'All') || (req.query.type !== 'All' && !req.query.status)) {
-        getRecords('books', res, ['type', req.query.type])
-        return
+    var whereArray = null
+    if(req.query.type && req.query.type !== 'All') {
+        whereArray = [{ columnName: 'type', columnValue: req.query.type }]
     }
-    if((req.query.type === 'All' && req.query.status !== 'All') || (!req.query.type && req.query.status !== 'All')) {
-        getRecords('books', res, ['status', req.query.status])
-        return
+    if(req.query.status && req.query.status !== 'All') {
+        whereArray = [{ columnName: 'status', columnValue: req.query.status }]
     }
-    if(req.query.type !== 'All' && req.query.status !== 'All') {
-        getRecords('books', res, ['type', req.query.type], ['status', req.query.status])
-        return
+    if(req.query.type && req.query.status) {
+        if(req.query.type !== 'All' && req.query.status !== 'All') {
+            whereArray = [{ columnName: 'type', columnValue: req.query.type }, { columnName: 'status', columnValue: req.query.status }]
+        }
     }
-    getRecords('books', res)
+    getRecords('books', res, whereArray)
 })
 
 app.post('/books/add', (req, res) => {
@@ -87,7 +87,11 @@ app.delete('/series/:id', (req, res) => {
 })
 
 app.get('/notes/all', (req, res) => {
-    getRecords('notes', res)
+    var limit = null
+    if(req.query.count) {
+        limit = req.query.count
+    }
+    getRecords('notes', res, null, { columnName: 'created_at', order: 'desc' }, limit)
 })
 
 app.post('/notes/add', (req, res) => {
@@ -95,7 +99,7 @@ app.post('/notes/add', (req, res) => {
 })
 
 app.get('/notes/:book_id', (req, res) => {
-    getRecords('notes', res, ['book_id', req.params.book_id])
+    getRecords('notes', res, [{ columnName: 'book_id', columnValue: req.params.book_id }], { columnName: 'created_at', order: 'asc' })
 })
 
 app.patch('/notes/:id', (req, res) => {
@@ -106,20 +110,22 @@ app.delete('/notes/:id', (req, res) => {
     deleteRecord('notes', req.params.id, res)
 })
 
-function getRecords(table, res, where=null, secondWhere=null) {
-    if(where) {
-        if(secondWhere) {
-            knex(table).where(...where).where(...secondWhere).select().orderBy('updated_at', 'desc').then(rows => {
-                res.json(rows)
-            })
-            return
-        }
-        knex(table).where(...where).select().orderBy('updated_at', 'desc').then(rows => {
-            res.json(rows)
+function getRecords(table, res, whereArray=null, orderBy=null, limit=null) {
+    var knexObj = knex(table)
+    if(whereArray) {
+        whereArray.forEach(whereArgs => {
+            knexObj = knexObj.where(whereArgs.columnName, whereArgs.columnValue)
         })
-        return
     }
-    knex(table).select().orderBy('updated_at', 'desc').then(rows => {
+    if(orderBy) {
+        knexObj = knexObj.orderBy(orderBy.columnName, orderBy.order)
+    } else {
+        knexObj = knexObj.orderBy('updated_at', 'desc')
+    }
+    if(limit) {
+        knexObj = knexObj.limit(limit)
+    }
+    knexObj.then(rows => {
         res.json(rows)
     })
 }
@@ -131,12 +137,12 @@ function getRecord(table, id, res, leftJoinParams=null, selectLeftJoin=null) {
                 res.json(rows[0])
             })
         } else {
-            knex(table).where(table + '.id', id).select().leftJoin(...leftJoinParams).then(rows => {
+            knex(table).where(table + '.id', id).leftJoin(...leftJoinParams).then(rows => {
                 res.json(rows[0])
             })
         }
     } else {
-        knex(table).where('id', id).select().then(rows => {
+        knex(table).where('id', id).then(rows => {
             res.json(rows[0])
         })
     }

@@ -86,7 +86,7 @@ export default {
             (async () => {
                 const rawResponse = await fetch(`/notes/${this.$route.params.id}`, { credentials: 'include' })
                 const response = await rawResponse.json()
-                this.notes = response.reverse()
+                this.notes = response
             })()
         },
         editBook(id) {
