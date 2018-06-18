@@ -27,23 +27,35 @@
                 </div>
             </form>
         </div>
-        <div class="box" v-if="notes.length > 0">
+        <div class="box" v-if="Object.keys(notes).length > 0">
             <h1 class="title is-4">Recent Notes</h1>
-            <div v-for="(note, index) in notes">
-                <p><router-link :to="`/books/${note.book_id}`">{{ getBookName(note.book_id) }}</router-link></p>
-                <p style="margin-left: 2em">{{ note.updated_at | localizeDateTime }}</p>
-                <p style="margin-left: 4em">{{ note.marker }}: <span class="preserve-linebreaks">{{ note.note }}</span></p>
-                <br v-if="index !== notes.length - 1">
+            <div v-for="(notesArray, book_id) in notes">
+                <p><router-link :to="`/books/${book_id}`">{{ getBookName(book_id) }}</router-link></p>
+                <div v-for="note in notesArray">
+                    <p style="margin-left: 2em">{{ note.updated_at | localizeDateTime }}</p>
+                    <p style="margin-left: 4em">{{ note.marker }}: <span class="preserve-linebreaks">{{ note.note }}</span></p>
+                </div>
+                <!-- <br v-if="index !== notes.length - 1"> -->
             </div>
         </div>
     </div>
 </template>
 
 <script>
+// from [{ animal: 'cat', name: 'Tom' }, { animal: 'dog', name: 'Puggy' }, { animal: 'cat', name: 'Jack' }] // if `animal` is passed as the property
+// to { 'cat': [{ animal: 'cat', name: 'Tom' }, { animal: 'cat', name: 'Jack' }], 'dog': [{ animal: 'dog', name: 'Puggy' }]}
+function createGroupedArray(array, property) {
+    return array.reduce((r, a) => {
+        r[a[property]] = r[a[property]] || []
+        r[a[property]].push(a)
+        return r
+    }, Object.create(null))
+}
+
 export default {
     data () {
         return {
-            notes: [],
+            notes: {},
             books: [],
             note: {
                 book_id: '',
@@ -57,7 +69,7 @@ export default {
             (async () => {
                 const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include' })
                 const response = await rawResponse.json()
-                this.notes = response
+                this.notes = createGroupedArray(response, 'book_id')
             })()
         },
         fetchBooks() {
@@ -93,7 +105,7 @@ export default {
             })()
         },
         getBookName(book_id) {
-            var book = this.books.filter(book => book.id === book_id)[0] || null;
+            var book = this.books.filter(book => book.id == book_id)[0] || null; // don't use `===` here, since our book_id can also be a string at times
             if(book) {
                 return book.name
             } else {

@@ -39,7 +39,11 @@
                     <p>Added on: {{ book.created_at | localizeDateTime }}</p>
                     <p>Last Updated On: {{ book.updated_at | localizeDateTime }}</p>
                 </div>
-                <div class="is-pulled-right">
+                <div class="is-pulled-right is-hidden-touch">
+                    <button class="button" @click="editBook(book.id)">Edit</button>
+                    <button class="button is-danger is-outlined" @click="deleteBook(book.id)">Delete</button>
+                </div>
+                <div class="is-hidden-desktop">
                     <button class="button" @click="editBook(book.id)">Edit</button>
                     <button class="button is-danger is-outlined" @click="deleteBook(book.id)">Delete</button>
                 </div>
@@ -50,15 +54,16 @@
                 Notes
                 <button class="button is-pulled-right" @click="notesActions = !notesActions">Actions</button>
             </h1>
-            <div v-for="(note, index) in notes" class="columns">
-                <div class="column has-text-primary">{{ note.marker }}</div>
-                <div class="column is-11">
-                    <span class="preserve-linebreaks">{{ note.note }}</span>
-                    <span v-if="notesActions" style="margin-left: 1em">
-                        <button class="button is-small" @click="editNote(note.id)">Edit</button>
-                        <button class="button is-small is-danger is-outlined" @click="deleteNote(note.id, index)">Delete</button>
-                    </span>
+            <div v-for="(note, index) in notes">
+                <div v-if="notesActions" class="is-pulled-right">
+                    <button class="button is-small" @click="editNote(note.id)">Edit</button>
+                    <button class="button is-small is-danger is-outlined" @click="deleteNote(note.id, index)">Delete</button>
                 </div>
+                <div class="has-text-primary">{{ note.marker }}</div>
+                <div>
+                    <span class="preserve-linebreaks">{{ note.note }}</span>
+                </div>
+                <div class="datetime">{{ note.created_at | localizeDateTime }}</div>
                 <br v-if="index !== notes.length - 1">
             </div>
         </div>

@@ -88,5 +88,9 @@
 }
 
 .preserve-linebreaks {
-    white-space: pre;
+    white-space: pre-wrap;
+}
+
+.datetime {
+    color: grey;
 }

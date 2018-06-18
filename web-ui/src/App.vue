@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="hero is-warning is-bold">
+        <section class="hero is-warning is-bold is-hidden-touch">
             <div class="hero-body">
                 <div class="container">
                     <h1 class="title">
@@ -16,6 +16,16 @@
         </section>
         <nav class="navbar has-shadow" role="navigation" aria-label="dropdown navigation">
             <div class="container">
+                <div class="navbar-brand is-hidden-desktop">
+                    <a class="navbar-item" href="https://bulma.io">
+                        <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
+                    </a>
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
                 <div class="navbar-menu">
                     <div class="navbar-end">
                         <router-link to="/books" class="navbar-item">Books</router-link>
@@ -32,3 +42,14 @@
         </section>
     </div>
 </template>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    var navBurger = document.querySelector('.navbar-burger')
+    var navMenu = document.querySelector('.navbar-menu')
+    navBurger.addEventListener('click', () => {
+        navBurger.classList.toggle('is-active')
+        navMenu.classList.toggle('is-active')
+    })
+})
+</script>
