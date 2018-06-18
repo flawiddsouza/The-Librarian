@@ -30,12 +30,15 @@
         <div class="box" v-if="Object.keys(notes).length > 0">
             <h1 class="title is-4">Recent Notes</h1>
             <div v-for="(notesArray, book_id) in notes">
-                <p><router-link :to="`/books/${book_id}`">{{ getBookName(book_id) }}</router-link></p>
-                <div v-for="note in notesArray">
-                    <p style="margin-left: 2em">{{ note.updated_at | localizeDateTime }}</p>
-                    <p style="margin-left: 4em">{{ note.marker }}: <span class="preserve-linebreaks">{{ note.note }}</span></p>
+                <p style="margin-bottom: 0.5em"><router-link :to="`/books/${book_id}`">{{ getBookName(book_id) }}</router-link></p>
+                <div v-for="(note, index) in notesArray" style="margin-left: 1em">
+                    <div class="has-text-primary">{{ note.marker }}</div>
+                    <div>
+                        <span class="preserve-linebreaks">{{ note.note }}</span>
+                    </div>
+                    <div class="datetime">{{ note.updated_at | localizeDateTime }}</div>
+                    <br v-if="index !== notesArray.length - 1">
                 </div>
-                <!-- <br v-if="index !== notes.length - 1"> -->
             </div>
         </div>
     </div>
