@@ -56,12 +56,18 @@
             </h1>
             <div v-for="(note, index) in notes">
                 <div v-if="notesActions" class="is-pulled-right">
-                    <button class="button is-small" @click="editNote(note.id)">Edit</button>
+                    <button class="button is-small" @click="cancelEdit(index)" v-if="note.edit">Cancel</button>
+                    <button class="button is-small" @click="updateNote(index)" v-if="note.edit">Update</button>
+                    <button class="button is-small" @click="editNote(index)" v-if="!note.edit">Edit</button>
                     <button class="button is-small is-danger is-outlined" @click="deleteNote(note.id, index)">Delete</button>
                 </div>
-                <div class="has-text-primary">{{ note.marker }}</div>
+                <div class="has-text-primary">
+                    <span v-if="!note.edit">{{ note.marker }}</span>
+                    <input class="input is-inline" type="text" v-model="note.marker" v-else>
+                </div>
                 <div>
-                    <span class="preserve-linebreaks">{{ note.note }}</span>
+                    <span class="preserve-linebreaks" v-if="!note.edit">{{ note.note }}</span>
+                    <textarea class="textarea" v-model="note.note" v-else></textarea>
                 </div>
                 <div class="datetime">{{ note.created_at | localizeDateTime }}</div>
                 <br v-if="index !== notes.length - 1">
@@ -115,8 +121,33 @@ export default {
                 })()
             }
         },
-        editNote(id) {
-            //
+        editNote(index) {
+            this.notes.splice(index, 1, Object.assign(this.notes[index], { edit: true, original: Object.assign({}, this.notes[index]) }))
+        },
+        updateNote(index) {
+            (async () => {
+                const rawResponse = await fetch(`/notes/${this.notes[index].id}`, {
+                    credentials: 'include',
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.notes[index])
+                })
+                const response = await rawResponse.json()
+
+                if(response.success) {
+                    this.notes.splice(index, 1, Object.assign(this.notes[index], { edit: false }))
+                    this.alertify.success('Note updated')
+                } else {
+                    this.alertify.error("Note coudn't be updated")
+                    console.log(response.error)
+                }
+            })()
+        },
+        cancelEdit(index) {
+            this.notes.splice(index, 1, Object.assign(this.notes[index].original, { edit: false }))
         },
         deleteNote(id, index) {
             if(confirm('Are you sure?')) {

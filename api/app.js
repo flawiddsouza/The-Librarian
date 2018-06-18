@@ -37,6 +37,7 @@ app.use(express.static(path.join(__dirname, '../web-ui-dist')))
 
 const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', 'is_series', 'series_id', 'series_index', 'status', 'started_reading', 'completed_reading', 'rating', 'extra_metadata']
 const notesTableColumns = ['book_id', 'marker', 'note']
+const notesTableColumnsUpdate = ['marker', 'note']
 
 app.get('/books/all', (req, res) => {
     var whereArray = null
@@ -103,7 +104,7 @@ app.get('/notes/:book_id', (req, res) => {
 })
 
 app.patch('/notes/:id', (req, res) => {
-    updateRecord('notes', notesTableColumns, req, res)
+    updateRecord('notes', notesTableColumnsUpdate, req, res)
 })
 
 app.delete('/notes/:id', (req, res) => {
