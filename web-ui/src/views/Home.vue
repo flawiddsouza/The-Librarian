@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="box">
+        <div class="box" v-if="books.length > 0">
             <form @submit.prevent="addNote">
                 <div class="field">
                     <label class="label">Pick a book from the list</label>
@@ -27,6 +27,9 @@
                 </div>
             </form>
         </div>
+        <div class="box" v-else>
+            You're currently not reading any books.
+        </div>
         <div class="box" v-if="Object.keys(notes).length > 0">
             <h1 class="title is-4">Recent Notes</h1>
             <div v-for="(notesArray, book_id) in notes">
@@ -48,11 +51,15 @@
 // from [{ animal: 'cat', name: 'Tom' }, { animal: 'dog', name: 'Puggy' }, { animal: 'cat', name: 'Jack' }] // if `animal` is passed as the property
 // to { 'cat': [{ animal: 'cat', name: 'Tom' }, { animal: 'cat', name: 'Jack' }], 'dog': [{ animal: 'dog', name: 'Puggy' }]}
 function createGroupedArray(array, property) {
-    return array.reduce((r, a) => {
-        r[a[property]] = r[a[property]] || []
-        r[a[property]].push(a)
-        return r
-    }, Object.create(null))
+    if(Array.isArray(array)) {
+        return array.reduce((r, a) => {
+            r[a[property]] = r[a[property]] || []
+            r[a[property]].push(a)
+            return r
+        }, Object.create(null))
+    } else {
+        return null
+    }
 }
 
 export default {
@@ -70,14 +77,14 @@ export default {
     methods: {
         fetchNotes() {
             (async () => {
-                const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include' })
+                const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.notes = createGroupedArray(response, 'book_id')
             })()
         },
         fetchBooks() {
             (async () => {
-                const rawResponse = await fetch(`/books/all?status=Currently Reading`, { credentials: 'include' })
+                const rawResponse = await fetch(`/books/all?status=Currently Reading`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.books = response
                 if(this.books.length > 0) {
@@ -90,10 +97,7 @@ export default {
                 const rawResponse = await fetch('/notes/add', {
                     credentials: 'include',
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: this.$store.state.fetchHeaders,
                     body: JSON.stringify(this.note)
                 })
                 const response = await rawResponse.json()
@@ -117,6 +121,9 @@ export default {
         }
     },
     created() {
+        if(!localStorage.getItem('token')) {
+            this.$router.push({ path: '/login' })
+        }
         this.fetchNotes()
         this.fetchBooks()
     }

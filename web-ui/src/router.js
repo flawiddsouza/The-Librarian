@@ -9,6 +9,8 @@ import AddBook from './views/AddBook.vue'
 import Book from './views/Book.vue'
 import EditBook from './views/EditBook.vue'
 import Series from './views/Series.vue'
+import Login from './views/Login.vue'
+import Register from './views/Register.vue'
 
 export default new Router({
     routes: [
@@ -17,6 +19,8 @@ export default new Router({
         { path: '/books/add', component: AddBook },
         { path: '/books/:id', component: Book },
         { path: '/books/:id/edit', component: EditBook },
-        { path: '/series', component: Series }
+        { path: '/series', component: Series },
+        { path: '/login', component: Login },
+        { path: '/register', component: Register }
     ]
 })

@@ -63,7 +63,7 @@ export default {
     methods: {
         fetchSeries() {
             (async () => {
-                const rawResponse = await fetch('/series/all', { credentials: 'include' })
+                const rawResponse = await fetch('/series/all', { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.series = response
             })()
@@ -73,10 +73,7 @@ export default {
                 const rawResponse = await fetch('/series/add', {
                     credentials: 'include',
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: this.$store.state.fetchHeaders,
                     body: JSON.stringify({ name: this.seriesName })
                 })
                 const response = await rawResponse.json()
@@ -96,10 +93,7 @@ export default {
                             const rawResponse = await fetch(`/series/${id}`, {
                                 credentials: 'include',
                                 method: 'PATCH',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                },
+                                headers: this.$store.state.fetchHeaders,
                                 body: JSON.stringify({ name: newName })
                             })
                             const response = await rawResponse.json()
@@ -118,10 +112,11 @@ export default {
                     })
         },
         deleteSeries(id, index) {
-            if(confirm('Are you sure?')) {
+            if(confirm('Are you sure? Deleting a series will delete all the books attached to it!')) {
                 (async () => {
                     const rawResponse = await fetch(`/series/${id}`, {
                         credentials: 'include',
+                        headers: this.$store.state.fetchHeaders,
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()

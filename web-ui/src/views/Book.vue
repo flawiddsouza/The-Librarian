@@ -88,14 +88,14 @@ export default {
     methods: {
         fetchBook() {
             (async () => {
-                const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include' })
+                const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.book = response
             })()
         },
         fetchNotes() {
             (async () => {
-                const rawResponse = await fetch(`/notes/${this.$route.params.id}`, { credentials: 'include' })
+                const rawResponse = await fetch(`/notes/${this.$route.params.id}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.notes = response
             })()
@@ -108,6 +108,7 @@ export default {
                 (async () => {
                     const rawResponse = await fetch(`/books/${id}`, {
                         credentials: 'include',
+                        headers: this.$store.state.fetchHeaders,
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()
@@ -129,10 +130,7 @@ export default {
                 const rawResponse = await fetch(`/notes/${this.notes[index].id}`, {
                     credentials: 'include',
                     method: 'PATCH',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: this.$store.state.fetchHeaders,
                     body: JSON.stringify(this.notes[index])
                 })
                 const response = await rawResponse.json()
@@ -154,6 +152,7 @@ export default {
                 (async () => {
                     const rawResponse = await fetch(`/notes/${id}`, {
                         credentials: 'include',
+                        headers: this.$store.state.fetchHeaders,
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()

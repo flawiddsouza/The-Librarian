@@ -7,8 +7,15 @@ exports.up = knex => {
                 .unsigned()
                 .references('id')
                 .inTable('books')
+                .onDelete('CASCADE')
             table.string('marker')
             table.text('note')
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE')
             table.timestamps(true, true)
         })
 }

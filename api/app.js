@@ -3,7 +3,7 @@ const app = express()
 
 const Knex = require('knex')
 const knexConfig = require('./knexfile')
-var knex = Knex(knexConfig)
+const knex = Knex(knexConfig)
 
 const path = require('path')
 
@@ -11,6 +11,7 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
 require('dotenv').config()
+
 if(process.env.BASIC_AUTH_USERNAME && process.env.BASIC_AUTH_PASSWORD) {
     app.use((req, res, next) => {
         const auth = { login: process.env.BASIC_AUTH_USERNAME, password: process.env.BASIC_AUTH_PASSWORD }
@@ -29,7 +30,6 @@ if(process.env.BASIC_AUTH_USERNAME && process.env.BASIC_AUTH_PASSWORD) {
         // -----------------------------------------------------------------------
         // Access granted...
         next()
-
     })
 }
 
@@ -38,6 +38,41 @@ app.use(express.static(path.join(__dirname, '../web-ui-dist')))
 const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', 'is_series', 'series_id', 'series_index', 'status', 'started_reading', 'completed_reading', 'rating', 'extra_metadata']
 const notesTableColumns = ['book_id', 'marker', 'note']
 const notesTableColumnsUpdate = ['marker', 'note']
+
+const auth = require('./auth')
+app.use(auth) // attach auth routes
+
+const jwt = require('jsonwebtoken')
+function authCheck(req, res, next) {
+    if(req.header('token')) {
+        try {
+            var decoded = jwt.verify(req.header('token'), process.env.JWT_SECRET)
+            req.authUserId = decoded.id // decoded has the object structure { id: id }
+        } catch(err) {
+            if(err.name == 'JsonWebTokenError') {
+                return res.json({
+                    success: false,
+                    message: 'Authentication failed. Invalid token provided.'
+                })
+            } else if(err.name == 'TokenExpiredError') {
+                return res.json({
+                    success: false,
+                    message: 'Authentication failed. Token provided has expired.'
+                })
+            } else {
+                console.log(err)
+            }
+        }
+    } else {
+        return res.json({
+            success: false,
+            message: 'Authentication failed. No token provided.'
+        })
+    }
+    next()
+}
+
+app.use(authCheck) // make auth compulsory on all routes below
 
 app.get('/books/all', (req, res) => {
     var whereArray = null
@@ -52,7 +87,7 @@ app.get('/books/all', (req, res) => {
             whereArray = [{ columnName: 'type', columnValue: req.query.type }, { columnName: 'status', columnValue: req.query.status }]
         }
     }
-    getRecords('books', res, whereArray)
+    getRecords('books', req, res, whereArray)
 })
 
 app.post('/books/add', (req, res) => {
@@ -60,7 +95,7 @@ app.post('/books/add', (req, res) => {
 })
 
 app.get('/books/:id', (req, res) => {
-    getRecord('books', req.params.id, res, ['series', 'books.series_id', 'series.id'], 'series.name as series_name')
+    getRecord('books', req.params.id, req, res, ['series', 'books.series_id', 'series.id'], 'series.name as series_name')
 })
 
 app.patch('/books/:id', (req, res) => {
@@ -68,11 +103,11 @@ app.patch('/books/:id', (req, res) => {
 })
 
 app.delete('/books/:id', (req, res) => {
-    deleteRecord('books', req.params.id, res)
+    deleteRecord('books', req.params.id, req, res)
 })
 
 app.get('/series/all', (req, res) => {
-    getRecords('series', res)
+    getRecords('series', req, res)
 })
 
 app.post('/series/add', (req, res) => {
@@ -84,7 +119,7 @@ app.patch('/series/:id', (req, res) => {
 })
 
 app.delete('/series/:id', (req, res) => {
-    deleteRecord('series', req.params.id, res)
+    deleteRecord('series', req.params.id, req, res)
 })
 
 app.get('/notes/all', (req, res) => {
@@ -92,7 +127,7 @@ app.get('/notes/all', (req, res) => {
     if(req.query.count) {
         limit = req.query.count
     }
-    getRecords('notes', res, null, { columnName: 'created_at', order: 'desc' }, limit)
+    getRecords('notes', req, res, null, { columnName: 'created_at', order: 'desc' }, limit)
 })
 
 app.post('/notes/add', (req, res) => {
@@ -100,7 +135,7 @@ app.post('/notes/add', (req, res) => {
 })
 
 app.get('/notes/:book_id', (req, res) => {
-    getRecords('notes', res, [{ columnName: 'book_id', columnValue: req.params.book_id }], { columnName: 'created_at', order: 'asc' })
+    getRecords('notes', req, res, [{ columnName: 'book_id', columnValue: req.params.book_id }], { columnName: 'created_at', order: 'asc' })
 })
 
 app.patch('/notes/:id', (req, res) => {
@@ -108,11 +143,11 @@ app.patch('/notes/:id', (req, res) => {
 })
 
 app.delete('/notes/:id', (req, res) => {
-    deleteRecord('notes', req.params.id, res)
+    deleteRecord('notes', req.params.id, req, res)
 })
 
-function getRecords(table, res, whereArray=null, orderBy=null, limit=null) {
-    var knexObj = knex(table)
+function getRecords(table, req, res, whereArray=null, orderBy=null, limit=null) {
+    var knexObj = knex(table).where('user_id', req.authUserId)
     if(whereArray) {
         whereArray.forEach(whereArgs => {
             knexObj = knexObj.where(whereArgs.columnName, whereArgs.columnValue)
@@ -131,19 +166,19 @@ function getRecords(table, res, whereArray=null, orderBy=null, limit=null) {
     })
 }
 
-function getRecord(table, id, res, leftJoinParams=null, selectLeftJoin=null) {
+function getRecord(table, id, req, res, leftJoinParams=null, selectLeftJoin=null) {
     if(leftJoinParams) {
         if(selectLeftJoin) {
-            knex(table).where(table + '.id', id).select(table + '.*', selectLeftJoin).leftJoin(...leftJoinParams).then(rows => {
+            knex(table).where(table +'.user_id', req.authUserId).where(table + '.id', id).select(table + '.*', selectLeftJoin).leftJoin(...leftJoinParams).then(rows => {
                 res.json(rows[0])
             })
         } else {
-            knex(table).where(table + '.id', id).leftJoin(...leftJoinParams).then(rows => {
+            knex(table).where(table +'.user_id', req.authUserId).where(table + '.id', id).leftJoin(...leftJoinParams).then(rows => {
                 res.json(rows[0])
             })
         }
     } else {
-        knex(table).where('id', id).then(rows => {
+        knex(table).where('user_id', req.authUserId).where('id', id).then(rows => {
             res.json(rows[0])
         })
     }
@@ -154,8 +189,14 @@ function addRecord(table, columns, req, res) {
         var insertObj = {}
 
         columns.forEach(column => {
-            insertObj[column] = req.body[column]
+            if(req.body[column] !== '') {
+                insertObj[column] = req.body[column]
+            } else {
+                insertObj[column] = null
+            }
         })
+
+        insertObj['user_id'] = req.authUserId
 
         knex(table).insert(insertObj, 'id').then(insertedIds => {
             knex(table).where('id', insertedIds[0]).select('created_at').then(rows => {
@@ -183,10 +224,14 @@ function updateRecord(table, columns, req, res) {
         var insertObj = {}
 
         columns.forEach(column => {
-            insertObj[column] = req.body[column]
+            if(req.body[column] !== '') {
+                insertObj[column] = req.body[column]
+            } else {
+                insertObj[column] = null
+            }
         })
 
-        knex(table).where('id', req.params.id).update(insertObj).update('updated_at', knex.fn.now()).then(updatedRowsCount => {
+        knex(table).where('user_id', req.authUserId).where('id', req.params.id).update(insertObj).update('updated_at', knex.fn.now()).then(updatedRowsCount => {
             knex(table).where('id', req.params.id).select('updated_at').then(rows => {
                 var row = rows[0]
                 res.json({
@@ -203,9 +248,9 @@ function updateRecord(table, columns, req, res) {
     }
 }
 
-function deleteRecord(table, id, res) {
+function deleteRecord(table, id, req, res) {
     try {
-        knex(table).where('id', id).delete().then(deleteCount => {
+        knex(table).where('user_id', req.authUserId).where('id', id).delete().then(deleteCount => {
             res.json({ success: true })
         })
     } catch(error) {

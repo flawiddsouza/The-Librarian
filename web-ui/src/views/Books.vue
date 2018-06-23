@@ -10,56 +10,61 @@
                 </li>
             </ul>
         </nav>
-        <div class="tabs is-toggle">
-            <ul>
-                <li v-bind:class="[status === 'All' ? 'is-active' : '']">
-                    <a @click="switchStatus('All')">All</a>
-                </li>
-                <li v-bind:class="[status === 'Currently Reading' ? 'is-active' : '']">
-                    <a @click="switchStatus('Currently Reading')">Currently Reading</a>
-                </li>
-                <li v-bind:class="[status === 'Read' ? 'is-active' : '']">
-                    <a @click="switchStatus('Read')">Read</a>
-                </li>
-            </ul>
-        </div>
-        <div class="tabs is-toggle">
-            <ul>
-                <li v-bind:class="[type === 'All' ? 'is-active' : '']">
-                    <a @click="switchType('All')">All</a>
-                </li>
-                <li v-bind:class="[type === bookType ? 'is-active' : '']" v-for="bookType in bookTypes">
-                    <a @click="switchType(bookType)">{{ bookType }}</a>
-                </li>
-            </ul>
-        </div>
-        <div class="columns" v-for="books in chunkedBooks">
-            <div class="column is-one-fifth" v-for="book in books">
-                <div class="card">
-                    <div class="card-image">
-                        <router-link :to="`/books/${book.id}`">
-                            <figure class="image is-2by3" v-if="book.cover_image">
-                                <img :src="book.cover_image" v-if="book.cover_image">
-                                <h1 class="title" v-else>{{ book.name }} by {{ book.author }}</h1>
-                            </figure>
-                            <div class="book" v-else>
-                                <div class="title">
-                                    <div class="big">{{ book.name }}</div>
-                                    <div class="small">by {{ book.author }}</div>
+        <div v-if="books.length > 0">
+            <div class="tabs is-toggle">
+                <ul>
+                    <li v-bind:class="[status === 'All' ? 'is-active' : '']">
+                        <a @click="switchStatus('All')">All</a>
+                    </li>
+                    <li v-bind:class="[status === 'Currently Reading' ? 'is-active' : '']">
+                        <a @click="switchStatus('Currently Reading')">Currently Reading</a>
+                    </li>
+                    <li v-bind:class="[status === 'Read' ? 'is-active' : '']">
+                        <a @click="switchStatus('Read')">Read</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="tabs is-toggle">
+                <ul>
+                    <li v-bind:class="[type === 'All' ? 'is-active' : '']">
+                        <a @click="switchType('All')">All</a>
+                    </li>
+                    <li v-bind:class="[type === bookType ? 'is-active' : '']" v-for="bookType in bookTypes">
+                        <a @click="switchType(bookType)">{{ bookType }}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="columns" v-for="books in chunkedBooks">
+                <div class="column is-one-fifth" v-for="book in books">
+                    <div class="card">
+                        <div class="card-image">
+                            <router-link :to="`/books/${book.id}`">
+                                <figure class="image is-2by3" v-if="book.cover_image">
+                                    <img :src="book.cover_image" v-if="book.cover_image">
+                                    <h1 class="title" v-else>{{ book.name }} by {{ book.author }}</h1>
+                                </figure>
+                                <div class="book" v-else>
+                                    <div class="title">
+                                        <div class="big">{{ book.name }}</div>
+                                        <div class="small">by {{ book.author }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </router-link>
+                            </router-link>
+                        </div>
+                        <footer class="card-footer">
+                            <a class="card-footer-item">
+                                <span class="tag is-primary is-medium" v-if="book.type === 'Short Story Collection'">Short Stories</span>
+                                <span class="tag is-primary is-medium" v-else>{{ book.type }}</span>
+                            </a>
+                            <a class="card-footer-item" @click="editBook(book.id)">Edit</a>
+                            <a class="card-footer-item" @click="deleteBook(book.id)">Delete</a>
+                        </footer>
                     </div>
-                    <footer class="card-footer">
-                        <a class="card-footer-item">
-                            <span class="tag is-primary is-medium" v-if="book.type === 'Short Story Collection'">Short Stories</span>
-                            <span class="tag is-primary is-medium" v-else>{{ book.type }}</span>
-                        </a>
-                        <a class="card-footer-item" @click="editBook(book.id)">Edit</a>
-                        <a class="card-footer-item" @click="deleteBook(book.id)">Delete</a>
-                    </footer>
                 </div>
             </div>
+        </div>
+        <div class="box" v-else>
+            You haven't added any books to your library.
         </div>
     </div>
 </template>
@@ -94,7 +99,7 @@ export default {
     methods: {
         fetchBooks() {
             (async () => {
-                const rawResponse = await fetch(`${this.fetchURL}?type=${this.type}&status=${this.status}`, { credentials: 'include' })
+                const rawResponse = await fetch(`${this.fetchURL}?type=${this.type}&status=${this.status}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.books = response
             })()
@@ -107,6 +112,7 @@ export default {
                 (async () => {
                     const rawResponse = await fetch(`/books/${id}`, {
                         credentials: 'include',
+                        headers: this.$store.state.fetchHeaders,
                         method: 'DELETE'
                     })
                     const response = await rawResponse.json()

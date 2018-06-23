@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import store from './store'
 
 import 'bulma'
 import './scss/main.scss'
@@ -41,5 +42,37 @@ Vue.directive('focus', {
 
 new Vue({
     router,
+    store,
+    watch: {
+        '$route': function(to, from) {
+            if(!this.$store.state.token) {
+                var username = localStorage.getItem('username')
+                var password = localStorage.getItem('password')
+                if(username && password) {
+                    (async () => {
+                        const rawResponse = await fetch('/auth/token', {
+                            credentials: 'include',
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ username: username, password: password })
+                        })
+                        const response = await rawResponse.json()
+
+                        if(response.success) {
+                            this.$store.commit('updateToken', response.token)
+                            this.$store.commit('refreshFetchHeaders')
+                            this.$router.go() // reload current route, whichever it is
+                        } else {
+                            this.alertify.error(response.message)
+                            this.$router.push({ path: '/login' })
+                        }
+                    })()
+                }
+            }
+        }
+    },
     render: h => h(App)
 }).$mount('#app')

@@ -27,10 +27,15 @@
                     </a>
                 </div>
                 <div class="navbar-menu">
-                    <div class="navbar-end">
+                    <div class="navbar-end" v-if="authToken">
                         <router-link to="/books" class="navbar-item">Books</router-link>
                         <router-link to="/books/add" class="navbar-item">Add Book</router-link>
                         <router-link to="/series" class="navbar-item">Series</router-link>
+                        <a @click="logout" class="navbar-item">Logout</a>
+                    </div>
+                    <div class="navbar-end" v-else>
+                        <router-link to="/login" class="navbar-item">Login</router-link>
+                        <router-link to="/register" class="navbar-item">Register</router-link>
                     </div>
                 </div>
             </div>
@@ -52,4 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
         navMenu.classList.toggle('is-active')
     })
 })
+
+export default {
+    methods: {
+        logout() {
+            if(confirm('Are you sure?')) {
+                this.$store.commit('updateToken', null)
+                localStorage.clear()
+                this.$router.push('/login')
+            }
+        }
+    },
+    computed: {
+        authToken() {
+            return this.$store.state.token
+        }
+    }
+}
 </script>

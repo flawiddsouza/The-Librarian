@@ -129,14 +129,14 @@ export default {
     methods: {
         fetchBook() {
             (async () => {
-                const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include' })
+                const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.book = response
             })()
         },
         fetchSeries() {
             (async () => {
-                const rawResponse = await fetch('/series/all', { credentials: 'include' })
+                const rawResponse = await fetch('/series/all', { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.series = response
             })()
@@ -146,10 +146,7 @@ export default {
                 const rawResponse = await fetch(`/books/${this.$route.params.id}`, {
                     credentials: 'include',
                     method: 'PATCH',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: this.$store.state.fetchHeaders,
                     body: JSON.stringify(this.book)
                 })
                 const response = await rawResponse.json()

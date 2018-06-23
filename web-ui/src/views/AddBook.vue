@@ -134,7 +134,7 @@ export default {
     methods: {
         fetchSeries() {
             (async () => {
-                const rawResponse = await fetch('/series/all', { credentials: 'include' })
+                const rawResponse = await fetch('/series/all', { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.series = response
             })()
@@ -144,10 +144,7 @@ export default {
                 const rawResponse = await fetch('/books/add', {
                     credentials: 'include',
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
+                    headers: this.$store.state.fetchHeaders,
                     body: JSON.stringify(this.book)
                 })
                 const response = await rawResponse.json()

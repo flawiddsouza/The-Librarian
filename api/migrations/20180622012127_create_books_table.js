@@ -3,6 +3,12 @@ exports.up = knex => {
         .createTable('series', table => {
             table.increments('id').primary()
             table.string('name')
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE')
             table.timestamps(true, true)
         })
         .createTable('books', table => {
@@ -18,18 +24,25 @@ exports.up = knex => {
                 .unsigned()
                 .references('id')
                 .inTable('series')
+                .onDelete('CASCADE')
             table.integer('series_index')
             table.string('status')
             table.date('started_reading')
             table.date('completed_reading')
             table.string('rating')
             table.text('extra_metadata')
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE')
             table.timestamps(true, true)
         })
 }
 
 exports.down = knex => {
     return knex.schema
-        .dropTableIfExists('series')
         .dropTableIfExists('books')
+        .dropTableIfExists('series')
 }
