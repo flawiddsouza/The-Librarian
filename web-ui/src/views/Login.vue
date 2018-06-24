@@ -55,7 +55,7 @@ export default {
                 const response = await rawResponse.json()
 
                 if(response.success) {
-                    this.alertify.success(response.message)
+                    this.alertify.success('Logged in')
                     localStorage.setItem('username', this.username)
                     localStorage.setItem('password', this.password)
                     this.$store.commit('updateToken', response.token)
