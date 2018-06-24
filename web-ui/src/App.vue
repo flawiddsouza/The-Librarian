@@ -17,9 +17,7 @@
         <nav class="navbar has-shadow" role="navigation" aria-label="dropdown navigation">
             <div class="container">
                 <div class="navbar-brand is-hidden-desktop">
-                    <a class="navbar-item" href="https://bulma.io">
-                        <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
-                    </a>
+                    <router-link to="/" class="navbar-item mobile-heading">The Librarian</router-link>
                     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
