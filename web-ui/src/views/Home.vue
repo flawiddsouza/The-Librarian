@@ -80,6 +80,9 @@ export default {
                 const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.notes = createGroupedArray(response, 'book_id')
+                if('success' in response && !response.success) {
+                    this.alertify.error(response.message)
+                }
             })()
         },
         fetchBooks() {
@@ -89,6 +92,9 @@ export default {
                 this.books = response
                 if(this.books.length > 0) {
                     this.note.book_id = this.books[0].id
+                }
+                if('success' in response && !response.success) {
+                    this.alertify.error(response.message)
                 }
             })()
         },

@@ -132,6 +132,9 @@ export default {
                 const rawResponse = await fetch(`/books/${this.$route.params.id}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.book = response
+                if('success' in response && !response.success) {
+                    this.alertify.error(response.message)
+                }
             })()
         },
         fetchSeries() {
@@ -139,6 +142,9 @@ export default {
                 const rawResponse = await fetch('/series/all', { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.series = response
+                if('success' in response && !response.success) {
+                    this.alertify.error(response.message)
+                }
             })()
         },
         updateBook() {
