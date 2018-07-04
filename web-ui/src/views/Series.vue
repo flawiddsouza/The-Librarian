@@ -82,7 +82,7 @@ export default {
                     this.seriesName = ''
                     this.fetchSeries()
                 } else {
-                    console.log(response.error)
+                    this.alertify.error(response.message)
                 }
             })()
         },
@@ -106,7 +106,7 @@ export default {
                                     }
                                 })
                             } else {
-                                console.log(response.error)
+                                this.alertify.error(response.message)
                             }
                         })()
                     })
@@ -124,7 +124,7 @@ export default {
                     if(response.success) {
                         this.series.splice(index, 1)
                     } else {
-                        console.log(response.error)
+                        this.alertify.error(response.message)
                     }
                 })()
             }

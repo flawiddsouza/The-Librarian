@@ -152,7 +152,7 @@ export default {
                 if(response.success) {
                     this.$router.push({ path: '/books' })
                 } else {
-                    console.log(response.error)
+                    this.alertify.error(response.message)
                 }
             })()
         }

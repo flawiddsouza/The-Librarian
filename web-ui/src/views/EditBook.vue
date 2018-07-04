@@ -154,7 +154,7 @@ export default {
                 if(response.success) {
                     this.$router.push({ path: `/books/${this.$route.params.id}` })
                 } else {
-                    console.log(response.error)
+                    this.alertify.error(response.message)
                 }
             })()
         },

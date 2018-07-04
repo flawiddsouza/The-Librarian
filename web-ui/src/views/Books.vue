@@ -123,7 +123,7 @@ export default {
                             }
                         })
                     } else {
-                        console.log(response.error)
+                        this.alertify.error(response.message)
                     }
                 })()
             }

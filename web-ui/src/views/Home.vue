@@ -107,7 +107,7 @@ export default {
                     this.note.marker = ''
                     this.note.note = ''
                 } else {
-                    console.log(response.error)
+                    this.alertify.error(response.message)
                 }
             })()
         },

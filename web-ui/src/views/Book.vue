@@ -117,7 +117,7 @@ export default {
                         this.alertify.success(`Book "${this.book.name} by ${this.book.author}" has been deleted`)
                         this.$router.push({ path: '/books' })
                     } else {
-                        console.log(response.error)
+                        this.alertify.error(response.message)
                     }
                 })()
             }
@@ -140,7 +140,7 @@ export default {
                     this.alertify.success('Note updated')
                 } else {
                     this.alertify.error("Note coudn't be updated")
-                    console.log(response.error)
+                    this.alertify.error(response.message)
                 }
             })()
         },
@@ -161,7 +161,7 @@ export default {
                         this.alertify.success(`Note deleted`)
                         this.notes.splice(index, 1)
                     } else {
-                        console.log(response.error)
+                        this.alertify.error(response.message)
                     }
                 })()
             }
