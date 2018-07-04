@@ -80,9 +80,7 @@ export default {
                 const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
                 this.notes = createGroupedArray(response, 'book_id')
-                if('success' in response && !response.success) {
-                    this.alertify.error(response.message)
-                }
+                this.handleFailedResponse(response)
             })()
         },
         fetchBooks() {
@@ -123,6 +121,16 @@ export default {
                 return book.name
             } else {
                 return 'Untitled'
+            }
+        },
+        handleFailedResponse(response) {
+            if('success' in response && !response.success) {
+                if(response.message === 'Authentication failed. Token provided has expired.') {
+                    this.$store.commit('updateToken', null)
+                    this.$router.go()
+                } else {
+                    this.alertify.error(response.message)
+                }
             }
         }
     },
