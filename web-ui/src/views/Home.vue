@@ -91,9 +91,7 @@ export default {
                 if(this.books.length > 0) {
                     this.note.book_id = this.books[0].id
                 }
-                if('success' in response && !response.success) {
-                    this.alertify.error(response.message)
-                }
+                // fetchNotes gets called first, so I don't need to handleFailedResponse here
             })()
         },
         addNote() {
@@ -121,16 +119,6 @@ export default {
                 return book.name
             } else {
                 return 'Untitled'
-            }
-        },
-        handleFailedResponse(response) {
-            if('success' in response && !response.success) {
-                if(response.message === 'Authentication failed. Token provided has expired.') {
-                    this.$store.commit('updateToken', null)
-                    this.$router.go()
-                } else {
-                    this.alertify.error(response.message)
-                }
             }
         }
     },
