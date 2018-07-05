@@ -10,7 +10,7 @@ const path = require('path')
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
-require('dotenv').config()
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 
 if(process.env.BASIC_AUTH_USERNAME && process.env.BASIC_AUTH_PASSWORD) {
     app.use((req, res, next) => {
