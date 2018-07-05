@@ -94,6 +94,14 @@
                     </div>
                 </div>
                 <div class="field">
+                    <label class="label">Rating</label>
+                    <div class="select">
+                        <select v-model="book.rating">
+                            <option v-for="rating in staticData.ratings">{{ rating }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
                     <label class="label">Extra Info</label>
                     <div class="control">
                         <textarea class="textarea" v-model="book.extra_metadata"></textarea>
@@ -125,6 +133,7 @@ export default {
                 status: 'Currently Reading',
                 started_reading: new Date().toISOString().split('T')[0],
                 completed_reading: '',
+                rating: '',
                 extra_metadata: ''
             },
             series: [],

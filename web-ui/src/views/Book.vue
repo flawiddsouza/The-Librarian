@@ -35,6 +35,7 @@
                     <p>Status: {{ book.status }}</p>
                     <p v-if="book.started_reading">Started Reading: {{ book.started_reading | formatDate }}</p>
                     <p v-if="book.completed_reading">Completed Reading: {{ book.completed_reading | formatDate }}</p>
+                    <p v-if="book.rating">Rating: {{ book.rating }}</p>
                     <p v-if="book.extra_metadata">Extra info: {{ book.extra_metadata }}</p>
                     <p>Added on: {{ book.created_at | localizeDateTime }}</p>
                     <p>Last Updated On: {{ book.updated_at | localizeDateTime }}</p>
