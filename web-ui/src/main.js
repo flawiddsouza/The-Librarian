@@ -61,6 +61,7 @@ Vue.mixin({
                     if(response.success) {
                         store.commit('updateToken', response.token)
                         store.commit('refreshFetchHeaders')
+                        router.go()
                     } else {
                         alertify.error(response.message)
                         router.push({ path: '/login' })
@@ -72,7 +73,6 @@ Vue.mixin({
             if('success' in response && !response.success) {
                 if(response.message === 'Authentication failed. Token provided has expired.') {
                     this.refreshToken()
-                    router.go()
                 } else {
                     alertify.error(response.message)
                 }
