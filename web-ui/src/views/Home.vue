@@ -32,14 +32,14 @@
         </div>
         <div class="box" v-if="Object.keys(notes).length > 0">
             <h1 class="title is-4">Recent Notes</h1>
-            <div v-for="(notesArray, book_id) in notes">
+            <div v-for="(notesArray, book_id) in notes" :class="{ 'mt-1em': Object.keys(notes)[0] !== book_id }">
                 <p style="margin-bottom: 0.5em"><router-link :to="`/books/${book_id}`">{{ getBookName(book_id) }}</router-link></p>
                 <div v-for="(note, index) in notesArray" style="margin-left: 1em">
                     <div class="has-text-primary">{{ note.marker }}</div>
                     <div>
                         <span class="preserve-linebreaks">{{ note.note }}</span>
                     </div>
-                    <div class="datetime">{{ note.updated_at | localizeDateTime }}</div>
+                    <div class="datetime">{{ note.created_at | localizeDateTime }}</div>
                     <br v-if="index !== notesArray.length - 1">
                 </div>
             </div>
@@ -66,6 +66,7 @@ export default {
     data () {
         return {
             notes: {},
+            rawNotes: [],
             books: [],
             note: {
                 book_id: '',
@@ -77,8 +78,9 @@ export default {
     methods: {
         fetchNotes() {
             (async () => {
-                const rawResponse = await fetch(`/notes/all?count=20`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
+                const rawResponse = await fetch(`/notes/all?count=5`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
+                this.rawNotes = response
                 this.notes = createGroupedArray(response, 'book_id')
                 this.handleFailedResponse(response)
             })()
@@ -114,11 +116,11 @@ export default {
             })()
         },
         getBookName(book_id) {
-            var book = this.books.filter(book => book.id == book_id)[0] || null; // don't use `===` here, since our book_id can also be a string at times
+            var book = this.rawNotes.find(note => note.book_id == book_id) // don't use `===` here, since our book_id can also be a string at times
             if(book) {
-                return book.name
+                return book.book_name
             } else {
-                return 'Untitled'
+                return 'Book name couldn\'t be extracted from the notes array'
             }
         }
     },

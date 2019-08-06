@@ -3,6 +3,9 @@
     font-weight: inherit;
 }
 
+.title > a {
+    color: black;
+}
 
 // Other Overrides
 .alertify {
@@ -98,4 +101,8 @@
 .mobile-heading {
     color: #cea222;
     font-size: 1.2em;
+}
+
+.mt-1em {
+    margin-top: 1em;
 }

@@ -106,7 +106,7 @@ app.get('/notes/all', (req, res) => {
     if(req.query.count) {
         limit = req.query.count
     }
-    getRecords('notes', req, res, null, { columnName: 'created_at', order: 'desc' }, limit)
+    getRecords('notes', req, res, null, { columnName: 'created_at', order: 'desc' }, limit, ['books', 'books.id', 'notes.book_id'], 'books.name as book_name')
 })
 
 app.post('/notes/add', (req, res) => {
@@ -125,12 +125,15 @@ app.delete('/notes/:id', (req, res) => {
     deleteRecord('notes', req.params.id, req, res)
 })
 
-function getRecords(table, req, res, whereArray=null, orderBy=null, limit=null) {
-    var knexObj = knex(table).where('user_id', req.authUserId)
+function getRecords(table, req, res, whereArray=null, orderBy=null, limit=null, leftJoinParams=null, selectLeftJoin=null) {
+    var knexObj = knex(table).where(table + '.user_id', req.authUserId)
     if(whereArray) {
         whereArray.forEach(whereArgs => {
             knexObj = knexObj.where(whereArgs.columnName, whereArgs.columnValue)
         })
+    }
+    if(leftJoinParams) {
+        knexObj = knexObj.leftJoin(...leftJoinParams).select(table + '.*', selectLeftJoin)
     }
     if(orderBy) {
         knexObj = knexObj.orderBy(orderBy.columnName, orderBy.order)
