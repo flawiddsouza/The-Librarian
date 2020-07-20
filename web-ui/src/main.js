@@ -63,6 +63,8 @@ Vue.mixin({
                         store.commit('refreshFetchHeaders')
                         router.go()
                     } else {
+                        store.commit('clearToken')
+                        store.commit('refreshFetchHeaders')
                         alertify.error(response.message)
                         router.push({ path: '/login' })
                     }

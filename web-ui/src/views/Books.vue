@@ -77,20 +77,15 @@ function chunk(arr, len) {
     return chunks
 }
 
+import staticData from './../static_data'
+
 export default {
     data() {
         return {
             fetchURL: '/books/all',
             type: 'All',
             status: 'All',
-            bookTypes: [
-                'Novel',
-                'Manga',
-                'Comic',
-                'Graphic Novel',
-                'Novella',
-                'Short Story Collection'
-            ],
+            bookTypes: staticData.bookTypes,
             books: [],
         }
     },

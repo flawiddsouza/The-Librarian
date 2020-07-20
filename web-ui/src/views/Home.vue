@@ -48,20 +48,6 @@
 </template>
 
 <script>
-// from [{ animal: 'cat', name: 'Tom' }, { animal: 'dog', name: 'Puggy' }, { animal: 'cat', name: 'Jack' }] // if `animal` is passed as the property
-// to { 'cat': [{ animal: 'cat', name: 'Tom' }, { animal: 'cat', name: 'Jack' }], 'dog': [{ animal: 'dog', name: 'Puggy' }]}
-function createGroupedArray(array, property) {
-    if(Array.isArray(array)) {
-        return array.reduce((r, a) => {
-            r[a[property]] = r[a[property]] || []
-            r[a[property]].push(a)
-            return r
-        }, Object.create(null))
-    } else {
-        return null
-    }
-}
-
 export default {
     data () {
         return {
@@ -76,14 +62,33 @@ export default {
         }
     },
     methods: {
-        fetchNotes() {
-            (async () => {
-                const rawResponse = await fetch(`/notes/all?count=5`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
-                const response = await rawResponse.json()
-                this.rawNotes = response
-                this.notes = createGroupedArray(response, 'book_id')
-                this.handleFailedResponse(response)
-            })()
+        async fetchNotes() {
+            const rawResponse = await fetch(`/notes/all?count=5`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
+            const response = await rawResponse.json()
+
+            this.handleFailedResponse(response)
+
+            this.rawNotes = response
+
+            let bookIds = []
+
+            response.forEach(item => {
+                if(!bookIds.includes(item.book_id)) {
+                    bookIds.push(item.book_id)
+                }
+            })
+
+            let bookWiseNotes = {}
+
+            // if you don't do .toString() + ' ' then object items will be ordered like a number indexed array from 0 to whatever - and insertion order is ignored
+            bookIds.forEach(bookId => {
+                if(!(bookId in bookWiseNotes)) {
+                    bookWiseNotes[bookId.toString() + ' '] = []
+                }
+                bookWiseNotes[bookId.toString() + ' '].push(...response.filter(note => note.book_id === bookId))
+            })
+
+            this.notes = bookWiseNotes
         },
         fetchBooks() {
             (async () => {

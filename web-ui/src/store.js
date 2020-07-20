@@ -17,6 +17,10 @@ export default new Vuex.Store({
             state.token = token
             localStorage.setItem('token', token)
         },
+        clearToken: state => {
+            state.token = null
+            localStorage.removeItem('token')
+        },
         refreshFetchHeaders: (state) => {
             state.fetchHeaders = {
                 'Accept': 'application/json',
