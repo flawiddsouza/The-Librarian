@@ -114,7 +114,7 @@ export default {
             this.$router.push({ path: `/books/${id}/edit` })
         },
         deleteBook(id) {
-            if(confirm('Are you sure?')) {
+            if(prompt('Are you sure? Confirm deletion by typing \'yes\' to continue') === 'yes') {
                 (async () => {
                     const rawResponse = await fetch(`/books/${id}`, {
                         credentials: 'include',

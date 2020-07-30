@@ -118,7 +118,7 @@ export default {
                     })
         },
         deleteSeries(id, index) {
-            if(confirm('Are you sure? Deleting a series will delete all the books attached to it!')) {
+            if(prompt('Are you sure? Deleting a series will delete all the books attached to it! Confirm deletion by typing \'yes\' to continue') === 'yes') {
                 (async () => {
                     const rawResponse = await fetch(`/series/${id}`, {
                         credentials: 'include',
