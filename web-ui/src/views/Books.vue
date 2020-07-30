@@ -94,6 +94,9 @@ export default {
             (async () => {
                 const rawResponse = await fetch(`${this.fetchURL}?type=${this.type}&status=${this.status}`, { credentials: 'include', headers: this.$store.state.fetchHeaders })
                 const response = await rawResponse.json()
+
+                this.handleFailedResponse(response)
+
                 this.books = response
                 if('success' in response && !response.success) {
                     this.alertify.error(response.message)
