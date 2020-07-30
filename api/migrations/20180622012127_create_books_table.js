@@ -18,7 +18,6 @@ exports.up = knex => {
             table.string('cover_image')
             table.string('type')
             table.string('version')
-            table.boolean('is_series')
             table
                 .integer('series_id')
                 .unsigned()

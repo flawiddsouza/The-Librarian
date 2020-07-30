@@ -49,19 +49,6 @@
                     <v-select taggable :options="staticData.bookVersions" v-model="book.version"></v-select>
                 </div>
                 <div class="field">
-                    <label class="label">Is part of a series?</label>
-                    <div class="control">
-                        <label class="radio">
-                            <input type="radio" value="1" v-model="book.is_series">
-                            Yes
-                        </label>
-                        <label class="radio">
-                            <input type="radio" value="0" v-model="book.is_series">
-                            No
-                        </label>
-                    </div>
-                </div>
-                <div class="field">
                     <label class="label">Pick a series from the list</label>
                     <div class="select">
                         <select v-model="book.series_id">

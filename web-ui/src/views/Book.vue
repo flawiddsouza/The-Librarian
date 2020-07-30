@@ -29,7 +29,7 @@
                     <p>Author: {{ book.author }}</p>
                     <p>Type: {{ book.type }}</p>
                     <p v-if="book.version">Version: {{ book.version }}</p>
-                    <div v-if="book.is_series">
+                    <div v-if="book.series_id">
                         <p>Series: {{ book.series_name }} #{{ book.series_index }}</p>
                     </div>
                     <p>Status: {{ book.status }}</p>

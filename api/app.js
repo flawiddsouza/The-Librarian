@@ -14,7 +14,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') })
 
 app.use(express.static(path.join(__dirname, '../web-ui-dist')))
 
-const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', 'is_series', 'series_id', 'series_index', 'status', 'started_reading', 'completed_reading', 'rating', 'extra_metadata']
+const booksTableColumns = ['name', 'author', 'cover_image', 'type', 'version', 'series_id', 'series_index', 'status', 'started_reading', 'completed_reading', 'rating', 'extra_metadata']
 const notesTableColumns = ['book_id', 'marker', 'note']
 const notesTableColumnsUpdate = ['marker', 'note']
 
